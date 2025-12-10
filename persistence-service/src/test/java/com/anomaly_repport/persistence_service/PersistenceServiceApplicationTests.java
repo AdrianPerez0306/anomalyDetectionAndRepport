@@ -1,10 +1,10 @@
-package com.anomaly_repport.persistance_service;
+package com.anomaly_repport.persistence_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PersistanceServiceApplicationTests {
+class PersistenceServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

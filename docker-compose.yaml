@@ -1,0 +1,106 @@
+services:
+
+  # =========================================================
+  # A. INFRAESTRUCTURA (Services que corren en contenedores)
+  # =========================================================
+  zookeeper:
+    image: 'zookeeper:3.8'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - anomaly-net
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: broker
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+
+  database:
+    image: 'postgres:14-alpine'
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=anomalydb
+    ports:
+      - '5432:5432' # Mapeo a localhost para las APPs de desarrollo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - anomaly-net
+
+  # =========================================================
+  # B. MICROSERVICIOS (Services de Spring Boot para Docker)
+  # Requieren que cada carpeta tenga un Dockerfile.
+  # =========================================================
+
+  entrypoint-service:
+    build: ./entrypoint-service
+    depends_on:
+      - kafka
+    environment:
+      # Las apps dentro de Docker usan el nombre del servicio de Kafka para conectarse
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SERVER_PORT=8080
+    ports:
+      - '8080:8080'
+    networks:
+      - anomaly-net
+
+  anomaly-detector-service:
+    build: ./anomaly-detector-service
+    depends_on:
+      - kafka
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SERVER_PORT=8081
+    ports:
+      - '8081:8081'
+    networks:
+      - anomaly-net
+
+  persistance-service:
+    build: ./persistance-service
+    depends_on:
+      - kafka
+      - database
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/anomalydb
+      - SERVER_PORT=8082
+    ports:
+      - '8082:8082'
+    networks:
+      - anomaly-net
+
+  batch-processing-service:
+    build: ./batch-processing-service
+    depends_on:
+      - kafka
+      - database
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/anomalydb
+      - SERVER_PORT=8083
+    ports:
+      - '8083:8083'
+    networks:
+      - anomaly-net
+
+networks:
+  anomaly-net:
+    driver: bridge
+
+volumes:
+  postgres_data:

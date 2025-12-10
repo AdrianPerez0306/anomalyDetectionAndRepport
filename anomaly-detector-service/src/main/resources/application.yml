@@ -1,0 +1,7 @@
+spring:
+    application:
+        name: "batch-processing-service"
+
+
+server:
+    port: 8081

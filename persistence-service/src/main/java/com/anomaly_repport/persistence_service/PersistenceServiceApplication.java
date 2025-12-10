@@ -1,13 +1,13 @@
-package com.anomaly_repport.persistance_service;
+package com.anomaly_repport.persistence_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PersistanceServiceApplication {
+public class PersistenceServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PersistanceServiceApplication.class, args);
+		SpringApplication.run(PersistenceServiceApplication.class, args);
 	}
 
 }

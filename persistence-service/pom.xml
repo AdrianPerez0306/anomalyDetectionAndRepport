@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.anomaly-repport</groupId>
-	<artifactId>persistance-service</artifactId>
+	<artifactId>persistence-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Persistance service</name>
 	<description>erated reppPersistance service to save data about detected anomalys and genorts</description>
