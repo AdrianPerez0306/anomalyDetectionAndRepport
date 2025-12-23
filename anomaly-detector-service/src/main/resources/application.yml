@@ -1,7 +1,26 @@
 spring:
-    application:
-        name: "batch-processing-service"
-
+  application:
+    name: anomaly-detector-service
+  
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: anomaly-detector-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "*"
 
 server:
-    port: 8081
+  port: 8081
+
+logging:
+  # Configuración CRÍTICA para archivos log
+  level:
+    # Solo VERÁS LO IMPORTANTE en el archivo .log
+    com.anomaly_repport: INFO           # Tus clases
+    org.apache.kafka: ERROR             # Solo errores de Kafka
+    org.springframework.kafka: WARN     # Solo warnings
+    org.springframework: WARN           # Spring solo warnings
+    root: WARN                          # Todo lo demás en WARN

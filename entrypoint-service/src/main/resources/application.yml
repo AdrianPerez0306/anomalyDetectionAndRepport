@@ -1,7 +1,22 @@
 spring:
-    application:
-        name: "entrypoint-service"
-
-
+  application:
+    name: entrypoint-service
+  
+  kafka:
+    bootstrap-servers: localhost:29092  # kafka:9092 cuando se use TODO con docker
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+    
 server:
-    port: 8080
+  port: 8080
+
+logging:
+  # Configuración CRÍTICA para archivos log
+  level:
+    # Solo VERÁS LO IMPORTANTE en el archivo .log
+    com.anomaly_repport: INFO           # Tus clases
+    org.apache.kafka: ERROR             # Solo errores de Kafka
+    org.springframework.kafka: WARN     # Solo warnings
+    org.springframework: WARN           # Spring solo warnings
+    root: WARN                          # Todo lo demás en WARN
